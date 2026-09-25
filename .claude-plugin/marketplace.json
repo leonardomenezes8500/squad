@@ -5,7 +5,7 @@
     "name": "Leonardo Menezes",
     "url": "https://github.com/leonardomenezes8500"
   },
-  "description": "squad.8500: work a GitHub issue with a team of Claude Code subagents.",
+  "description": "squad8500: work a GitHub issue with a team of Claude Code subagents.",
   "plugins": [
     {
       "name": "squad",

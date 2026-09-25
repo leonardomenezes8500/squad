@@ -62,6 +62,7 @@ Write the plan as a comment on the issue (`gh issue comment`): thin vertical sli
 - When ponytail is installed its ladder applies to every slice.
 - One commit per slice; the message says why. Tick the issue checkbox only after the commit that does it exists.
 - UI changes: run the app and check it in a browser before calling the slice done.
+- Any text a person will read (UI copy, error messages, README, docs) is written, then passed through the humanizer skill when it's installed, before the slice's commit.
 
 ## 4. Verify
 
@@ -76,7 +77,7 @@ Fix every blocking finding, then back to step 4. Max 3 review rounds; then escal
 
 ## 6. Gate 2 → PR
 
-Show the user: what changed, verify results, review results, what was left out. On their go: push, open the PR with `Closes #<n>`, wait for CI to go green. Merge only when the user says so.
+Show the user: what changed, verify results, review results, what was left out. On their go: push, open the PR with `Closes #<n>` (body passed through the humanizer skill when installed), wait for CI to go green. Merge only when the user says so.
 
 ## 7. After merge
 

@@ -1,4 +1,4 @@
-![squad.8500](assets/logo.png)
+![squad8500](assets/logo.png)
 
 A Claude Code plugin that makes Claude work like a professional team. You steer toward the goal: you approve plans and you merge. The squad picks the work, one agent writes the code, and the rest research and review in parallel.
 
