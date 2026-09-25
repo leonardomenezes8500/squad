@@ -13,6 +13,8 @@ AgentShield has no ignore option, so scan a copy holding only agent config:
 ```sh
 tmp=$(mktemp -d)
 cp -r CLAUDE.md .claude "$tmp"/ 2>/dev/null; cp .mcp.json "$tmp"/ 2>/dev/null
+# A Claude Code plugin keeps its agent config at the root.
+[ -d .claude-plugin ] && cp -r agents skills commands hooks "$tmp"/ 2>/dev/null
 npx -y ecc-agentshield@1.6.0 scan --path "$tmp" --format json > "$tmp.json"
 ```
 
