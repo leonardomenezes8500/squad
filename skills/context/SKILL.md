@@ -38,4 +38,4 @@ Consequences:
 1. Inventory every layer that exists: file paths, line counts, `MEMORY.md` line count against its 200-line load limit.
 2. Launch the `squad:context-auditor` agent. Pass it the auto memory directory path and the list of files.
 3. With its report, propose one diff: stale lines removed, contradictions resolved, duplicates collapsed, oversized blocks moved to `.claude/rules/` with `paths:`, missing essentials added (the conventions `/squad:setup` writes, if absent).
-4. Wait for the user's go, apply, and commit the versioned files (message says why). Memory files outside the repo aren't committed.
+4. Wait for the user's go and apply. If `CLAUDE.md` or `.claude/` changed, launch the `squad:shield` agent before committing. Commit the versioned files (message says why). Memory files outside the repo aren't committed.

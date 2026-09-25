@@ -15,14 +15,14 @@ A Claude Code plugin that makes Claude work like a professional team. You steer 
 2. **Research.** Parallel, read-only. A codebase scout (uses [graphify](https://github.com/Graphify-Labs/graphify) when the graph is worth it) and a docs reader for every external API the issue touches.
 3. **Plan → you approve.** Thin slices, the test for each, and what's deliberately left out, posted as a comment on the issue.
 4. **Implement.** One writer, slice by slice, test first for real logic, one commit per slice.
-5. **Verify.** Lint, format, build, tests. Three tries, then it asks you.
+5. **Verify.** Lint, format, build, tests. Three tries, then it asks you. If the change touches agent config (`CLAUDE.md`, `.claude/`, hooks, permissions, MCP), the shield agent runs [AgentShield](https://github.com/affaan-m/agentshield), fixes the real critical/high findings, ignores the scanner's known noise, and tells you what only you can do, like rotating a leaked key.
 6. **Review.** A workflow runs reviewers in parallel (correctness, tests, over-engineering, and security when the change touches auth, secrets, webhooks or user input), dedups their findings, and sends every critical/high one to a skeptic who tries to prove it wrong. If the skeptic can't, it blocks. A reviewer that crashes counts as a failure, not a pass.
 7. **PR → you approve.** Opens it with `Closes #42`, waits for CI. Merging is always yours.
 8. **Context.** Whatever the issue taught that a future session needs goes to the right memory layer.
 
 `/squad:context` keeps the project's context in the layer Claude Code loads it from: `CLAUDE.md` for team rules, path-scoped `.claude/rules/` for one area of the code, `CLAUDE.local.md` for you alone, auto memory for how you work, git for decisions. Subagents don't read auto memory, so anything the squad must follow lives in `CLAUDE.md` or rules. A context auditor checks every claim against the repo and flags what's stale, duplicated or in the wrong place.
 
-`/squad:setup` prepares a project: companion plugins in project scope, conventions in `CLAUDE.md`, a permissions deny list, and an [AgentShield](https://github.com/affaan-m/agentshield) gate in CI.
+`/squad:setup` prepares a project: companion plugins in project scope, conventions in `CLAUDE.md`, a permissions deny list, a first shield pass, and an AgentShield gate in CI that fails only on new critical/high findings. Whoever clones the repo inherits its agent config, so it gets guarded while you work and again in CI.
 
 ## Install
 

@@ -12,6 +12,7 @@ on:
     paths:
       [
         "CLAUDE.md",
+        ".mcp.json",
         ".claude/**",
         ".github/agentshield-baseline.json",
         ".github/workflows/agentshield.yml",
@@ -21,6 +22,7 @@ on:
     paths:
       [
         "CLAUDE.md",
+        ".mcp.json",
         ".claude/**",
         ".github/agentshield-baseline.json",
         ".github/workflows/agentshield.yml",
@@ -39,7 +41,7 @@ jobs:
       # Exit 2 = findings present but no regression vs baseline; 3 = regression.
       - run: |
           mkdir -p "$RUNNER_TEMP/agent-config"
-          cp -r CLAUDE.md .claude "$RUNNER_TEMP/agent-config/" 2>/dev/null || true
+          cp -r CLAUDE.md .claude .mcp.json "$RUNNER_TEMP/agent-config/" 2>/dev/null || true
           set +e
           npx -y ecc-agentshield@1.6.0 scan --path "$RUNNER_TEMP/agent-config" \
             --baseline .github/agentshield-baseline.json --gate

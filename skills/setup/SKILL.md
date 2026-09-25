@@ -57,10 +57,10 @@ Check `.gitignore` covers the env files the project uses (`.env`, `.env.*`, and 
 
 Only for a GitHub repo.
 
-1. Copy `${CLAUDE_SKILL_DIR}/agentshield.yml` to `.github/workflows/agentshield.yml`. If the default branch isn't `main`, or the project pins Node in `.nvmrc`, adjust the file.
-2. Baseline: copy `CLAUDE.md` and `.claude/` into a temp dir, then `npx -y ecc-agentshield@1.6.0 scan --path <tmp> --save-baseline .github/agentshield-baseline.json`. Exit code 2 there just means findings exist.
-3. Show the user the grade and the findings. Fix real ones (secrets, open permissions, risky hooks). The "missing prompt defense" checks target public chatbot prompts, not a dev CLAUDE.md: leave them in the baseline.
-4. The gate then fails CI only on new critical/high findings or a score drop.
+1. Launch the `squad:shield` agent first, so real findings are fixed before they get frozen into the baseline.
+2. Copy `${CLAUDE_SKILL_DIR}/agentshield.yml` to `.github/workflows/agentshield.yml`. If the default branch isn't `main`, or the project pins Node in `.nvmrc`, adjust the file.
+3. Baseline: copy `CLAUDE.md`, `.claude/` and `.mcp.json` (when present) into a temp dir, then `npx -y ecc-agentshield@1.6.0 scan --path <tmp> --save-baseline .github/agentshield-baseline.json`. Exit code 2 there just means findings exist. What's left in it is the scanner noise the shield report listed (chatbot "prompt defense" checks).
+4. The gate then fails CI only on new critical/high findings or a score drop. From here on the team skill calls `squad:shield` whenever agent config changes, and CI is the backstop.
 
 ## 6. Commit
 

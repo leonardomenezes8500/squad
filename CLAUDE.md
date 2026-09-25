@@ -18,7 +18,7 @@ Claude Code plugin that makes Claude work like a team on GitHub issues. This rep
 - Invoking a skill whose instructions call Workflow counts as the user's opt-in; the skill says so explicitly.
 - Review agents use agent-skills' `agentType` only when it's installed (`args.agentSkills`); otherwise a default agent gets the same lens.
 - graphify: never add its hooks to a project (a teammate without graphify gets a hook error on every tool call). Code enters the graph via AST for free; docs and images need `GEMINI_API_KEY` or `GOOGLE_API_KEY` (`graphify extract . --backend gemini`). Check keys exist, never print them.
-- AgentShield 1.6.0 has no ignore option, so the CI scans a copy holding only CLAUDE.md and `.claude/`: lockfile integrity hashes read as Azure keys. Exit 2 means findings without regression, 3 means regression. Its "missing prompt defense" checks target public chatbot prompts; they stay in the baseline.
+- AgentShield 1.6.0 has no ignore option, so the shield agent and the CI scan a copy holding only CLAUDE.md, `.claude/` and `.mcp.json`: lockfile integrity hashes read as Azure keys. Exit 2 means findings without regression, 3 means regression. Its `prompt-defense-*` checks target public chatbot prompts; they stay in the baseline. The shield fixes real findings but never edits the baseline or writes text to satisfy a keyword check.
 
 ## Working on squad
 

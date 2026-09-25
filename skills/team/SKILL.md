@@ -76,6 +76,8 @@ Write the plan as a comment on the issue (`gh issue comment`): thin vertical sli
 
 Run the verify commands. On failure fix and rerun, max 3 rounds; then stop and show the user the failure.
 
+If the branch touches agent config (`CLAUDE.md`, `.claude/**`, `.mcp.json`, hooks, permissions, plugins, MCP servers), launch the `squad:shield` agent. It fixes real critical/high findings in place; commit its fixes as their own commit and carry anything it says needs the user (rotating a secret, confirming a permission) into Gate 2.
+
 ## 5. Review
 
 - **standard/large:** `Workflow({scriptPath: "${CLAUDE_SKILL_DIR}/review.workflow.js", args: {issue: <n>, base: "<default branch>", security: <true if a security trigger applies>, agentSkills: <true if agent-skills:code-reviewer is an available agent type>}})`. Invoking this skill is the user's opt-in for the workflow.
