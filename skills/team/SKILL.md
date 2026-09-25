@@ -29,6 +29,14 @@ The project's CLAUDE.md wins over these; `/squad:setup` writes them there.
 - Simple beats clever and beats DRY: repeated simple code is fine.
 - User-facing prose (UI copy, README, PR body) goes through the humanizer skill when it's installed.
 
+## Commit messages
+
+Git is the project's memory: CLAUDE.md and auto memory never keep history or changelogs, so what happened and why has to be readable from `git log` alone.
+
+- Subject: `type: summary` (feat, fix, refactor, test, docs, chore, ci), imperative, under 72 characters.
+- Body for anything beyond a trivial change: why it was needed, what was tried or ruled out and why, constraints discovered on the way, and `Refs #<n>`.
+- One logical change per commit. A failed approach that got reverted is worth a sentence in the commit that replaces it.
+
 ## 0. Intake
 
 1. `gh issue view <n> --comments`. Every issue it says it depends on must be closed; if one isn't, stop and say which.
