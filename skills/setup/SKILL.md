@@ -1,6 +1,6 @@
 ---
 name: setup
-description: Prepare a project for squad - where issues live (GitHub or markdown), companion plugins in project scope, conventions in CLAUDE.md, a permissions deny list, and an AgentShield CI gate. Use when the user says "/squad:setup", "set up squad here", or starts a new project that should follow the squad conventions.
+description: Prepare a project for squad - where issues live (GitHub or markdown), companion plugins in project scope, a project baseline (Node via nvm, .editorconfig, direnv), conventions in CLAUDE.md, a permissions deny list, and an AgentShield CI gate. Use when the user says "/squad:setup", "set up squad here", or starts a new project that should follow the squad conventions.
 ---
 
 # setup
@@ -32,7 +32,15 @@ graphify is a CLI + global skill, not a plugin, so it can't be enabled per proje
 - Gemini key: code goes into the graph via AST without any key, but docs, markdown and images need an LLM, and graphify prefers Gemini (`GEMINI_API_KEY` or `GOOGLE_API_KEY`). Check whether one is set without printing it. If not, recommend adding it to the shell environment (graphify reads the environment, not the project's `.env` files unless something like direnv exports them).
 - Don't add graphify hooks to project settings: a teammate without graphify would hit a hook error on every tool call. The `squad:graphify-scout` agent uses the graph when it's there.
 
-## 3. Tracker
+## 3. Project baseline
+
+Check, recommend, and create files only with the user's go. Never install tools on the machine yourself; say what to run.
+
+- **Node.** The Codex plugin (18.18+) and AgentShield (`npx`) need it on every dev's machine, whatever the project's language. `node -v` missing or older → recommend [nvm](https://github.com/nvm-sh/nvm). In a Node project (`package.json`) with no `.nvmrc`, `.node-version` or `engines.node`, offer an `.nvmrc` with the current major, so everyone and CI run the same version.
+- **.editorconfig** missing → offer one that matches what the code already does (indent style and size read from existing files, `end_of_line = lf`, `insert_final_newline`, `trim_trailing_whitespace`, except in markdown). Don't impose a style the code doesn't follow.
+- **direnv**, when the project uses env files: recommend [direnv](https://direnv.net) with an `.envrc` holding only `dotenv`, so values stay in the gitignored `.env` and load when you `cd` in. Such an `.envrc` can be committed; each dev runs `direnv allow` once.
+
+## 4. Tracker
 
 Ask where the project's issues live, and write the answer to CLAUDE.md as a `## Tracker` section:
 
@@ -41,7 +49,7 @@ Ask where the project's issues live, and write the answer to CLAUDE.md as a `## 
 
 Either way, work is milestone → issue → checklist, and milestones play the role of sprints.
 
-## 4. Conventions in CLAUDE.md
+## 5. Conventions in CLAUDE.md
 
 Create CLAUDE.md if missing. If it has no conventions section, ask the user the UI language (for example pt-BR) and append:
 
@@ -57,7 +65,7 @@ Create CLAUDE.md if missing. If it has no conventions section, ask the user the 
 - Secrets live in env files outside git; never copy a secret value into code, commits, issues, logs or replies.
 ```
 
-## 5. Permissions deny list
+## 6. Permissions deny list
 
 Merge into `permissions.deny` of `.claude/settings.json`, keeping existing entries:
 
@@ -65,15 +73,15 @@ Merge into `permissions.deny` of `.claude/settings.json`, keeping existing entri
 
 Check `.gitignore` covers the env files the project uses (`.env`, `.env.*`, and `.envrc` if it holds values instead of `dotenv` loading).
 
-## 6. AgentShield CI gate
+## 7. AgentShield CI gate
 
 Only for a GitHub repo.
 
 1. Launch the `squad:shield` agent first, so real findings are fixed before they get frozen into the baseline.
-2. Copy `${CLAUDE_SKILL_DIR}/agentshield.yml` to `.github/workflows/agentshield.yml`. If the default branch isn't `main`, or the project pins Node in `.nvmrc`, adjust the file.
+2. Copy `${CLAUDE_SKILL_DIR}/agentshield.yml` to `.github/workflows/agentshield.yml`. If the default branch isn't `main`, adjust the file. If the project has an `.nvmrc`, use `node-version-file: .nvmrc` instead of the fixed version.
 3. Baseline: copy `CLAUDE.md`, `.claude/` and `.mcp.json` (when present) into a temp dir, then `npx -y ecc-agentshield@1.6.0 scan --path <tmp> --save-baseline .github/agentshield-baseline.json`. Exit code 2 there just means findings exist. What's left in it is the scanner noise the shield report listed (chatbot "prompt defense" checks).
 4. The gate then fails CI only on new critical/high findings or a score drop. From here on the team skill calls `squad:shield` whenever agent config changes, and CI is the backstop.
 
-## 7. Commit
+## 8. Commit
 
 One commit, message explaining why (for example "chore: set up squad conventions and AgentShield gate"). Push only when the user says so. End the report with anything still pending (like Codex login) and who has to do it.

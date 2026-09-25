@@ -24,7 +24,7 @@ A Claude Code plugin that makes Claude work like a professional team. You steer 
 
 Issues can live on GitHub or, when there's no GitHub access, in markdown files (`docs/issues/`) with the same milestones, dependencies and checklists. `/squad:setup` asks which, and on GitHub which repo and account.
 
-`/squad:setup` prepares a project: where issues live, companion plugins in project scope, conventions in `CLAUDE.md`, a permissions deny list, a first shield pass, and an AgentShield gate in CI that fails only on new critical/high findings. Whoever clones the repo inherits its agent config, so it gets guarded while you work and again in CI.
+`/squad:setup` prepares a project: where issues live, companion plugins in project scope, a baseline every project benefits from (Node through nvm, `.editorconfig`, direnv for env files), conventions in `CLAUDE.md`, a permissions deny list, a first shield pass, and an AgentShield gate in CI that fails only on new critical/high findings. Whoever clones the repo inherits its agent config, so it gets guarded while you work and again in CI.
 
 ## Install
 
