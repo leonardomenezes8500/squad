@@ -1,8 +1,8 @@
 {
   "$schema": "https://json.schemastore.org/claude-code-plugin-manifest.json",
   "name": "squad",
-  "description": "Take a GitHub issue to a reviewed PR with a team of subagents: research, plan, TDD, parallel adversarial review, two human gates.",
-  "version": "0.3.0",
+  "description": "Take an issue (GitHub or markdown) to a reviewed PR with a team of subagents: research, plan, TDD, parallel adversarial review, two human gates.",
+  "version": "0.4.0",
   "author": {
     "name": "Leonardo Menezes",
     "url": "https://github.com/leonardomenezes8500"

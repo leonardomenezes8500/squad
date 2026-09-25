@@ -6,7 +6,17 @@ argument-hint: "[issue number | milestone | goal] [auto]"
 
 # team
 
-The dev steers toward the goal; the squad does the work. Each issue ends in a PR that closes it; merging is always the dev's call. The main session is the only writer; subagents research and review in parallel, each with a small scoped prompt. Talk to the user in their language.
+The dev steers toward the goal; the squad does the work. Each issue ends in a PR (or, with a markdown tracker, a branch) that closes it; merging is always the dev's call. The main session is the only writer; subagents research and review in parallel, each with a small scoped prompt. Talk to the user in their language.
+
+## Tracker
+
+Read the `## Tracker` section of the project's CLAUDE.md. If it's missing, ask the user and suggest `/squad:setup`.
+
+- **github** (`repo: <owner/repo>`, `account: <gh login>`): before the first `gh` call, `gh api user -q .login` must match the account; if not, stop and ask the user to run `! gh auth switch -u <login>`. Pass `-R <owner/repo>` to every `gh` command.
+- **markdown** (`dir: docs/issues`): the same milestone → issue → checklist flow in files, for projects without GitHub access.
+  - `<dir>/milestones.md`: one `## <milestone>` per milestone, in order, with an optional `due: YYYY-MM-DD`.
+  - `<dir>/<nnn>-<slug>.md`: frontmatter `milestone`, `status: open|closed`, `depends: [<nnn>, ...]`; body: goal, `- [ ]` checklist, then `## Plan` and `## Log` that the squad appends to.
+  - Where this skill says: view the issue → read the file; comment on the issue → append to its `## Plan` or `## Log`; create an issue → new file with the next number; `Closes #<n>` → set `status: closed` in the branch's last commit; open the PR → leave the branch pushed (or local when there's no remote) and tell the dev it's ready to merge.
 
 ## Target
 
@@ -39,7 +49,7 @@ Git is the project's memory: CLAUDE.md and auto memory never keep history or cha
 
 ## 0. Intake
 
-1. `gh issue view <n> --comments`. Every issue it says it depends on must be closed; if one isn't, stop and say which.
+1. Read the issue (`gh issue view <n> --comments`, or its file). Every issue it says it depends on must be closed; if one isn't, stop and say which.
 2. Detect the verify commands: CLAUDE.md first, then `package.json` scripts / Makefile / pyproject (lint, format check, build, test).
 3. Classify the size and state it in one line so the user can override:
    - **trivial**: one file, no new behavior (copy, config, rename) → steps 3, 4, 6
@@ -48,6 +58,18 @@ Git is the project's memory: CLAUDE.md and auto memory never keep history or cha
    - **large**: spans modules or needs a design choice → all steps, and suggest splitting the issue first
 
 Security triggers (always at least standard): auth/login, access control or tenant isolation, tokens and secrets, webhooks, input from users or external APIs, payments.
+
+4. Codex: when `codex:codex-rescue` is an available agent type, find the runtime with `ls ~/.claude/plugins/cache/openai-codex/codex/*/scripts/codex-companion.mjs | sort -V | tail -1` and check `node <path> setup --json` reports `"ready": true`. Not ready → one line telling the user to run `/codex:setup`, then carry on without Codex.
+
+## Codex
+
+A second model from another lab, called by the squad at the points below and nowhere else. Invoking this skill is the user's opt-in. Codex usage counts against the user's plan, so every call has to earn its place.
+
+- **Breaking point → `codex:codex-rescue`.** Some signs that Claude is stuck on its own reasoning: the same check fails after two different fixes; a fixed review finding comes back; the work flips between two approaches; the root cause of a bug can't be said in one sentence; or a large plan has two viable designs and no clear winner. When one shows up, stop patching and launch the agent in the foreground. The prompt gives the goal, what was tried, why each attempt failed, and the files involved. It says the call is **read-only: diagnose and recommend, no edits**. Codex's answer is input; the main session decides and stays the only writer. At most 2 calls per issue, then escalate to the user with both views.
+- **Effort by size.** For rescue on a small issue, add `--model spark` (fast and cheap). On standard, leave model and effort unset so the project's `.codex/config.toml` or Codex's defaults apply. On large or security issues, add `--effort high`.
+- **Review.** Standard and large issues get one Codex review in the first review round, run by the review workflow (step 5). Later rounds use Claude reviewers only.
+- **Large plans:** before Gate 1, one read-only rescue call to challenge the plan (hidden assumptions, a simpler route, what breaks first). Its critique goes into the Gate 1 message.
+- An empty rescue result means Codex couldn't run: say so in one line and carry on.
 
 ## 1. Research (standard, large)
 
@@ -80,14 +102,16 @@ If the branch touches agent config (`CLAUDE.md`, `.claude/**`, `.mcp.json`, hook
 
 ## 5. Review
 
-- **standard/large:** `Workflow({scriptPath: "${CLAUDE_SKILL_DIR}/review.workflow.js", args: {issue: <n>, base: "<default branch>", security: <true if a security trigger applies>, agentSkills: <true if agent-skills:code-reviewer is an available agent type>}})`. Invoking this skill is the user's opt-in for the workflow.
+- **standard/large:** `Workflow({scriptPath: "${CLAUDE_SKILL_DIR}/review.workflow.js", args: {issue: <n>, base: "<default branch>", tracker: "<the issue's `gh -R <owner/repo> issue view <n>` command, or its file path>", codex: "<runtime path>", security: <true if a security trigger applies>, agentSkills: <true if agent-skills:code-reviewer is an available agent type>}})`. Invoking this skill is the user's opt-in for the workflow.
 - **small:** one reviewer subagent (`agent-skills:code-reviewer` when available) on `git diff <base>...HEAD`.
+
+The workflow's `codex` arg: the runtime path from intake when Codex is ready and this is the first review round, otherwise omit it.
 
 Fix every blocking finding, then back to step 4. Max 3 review rounds; then escalate to the user with what's left. Non-blocking suggestions go in the PR body, never silently dropped. If the workflow reports dead reviewers, say which dimension went unreviewed.
 
 ## 6. Gate 2 → PR
 
-Show the user: what changed, verify results, review results, what was left out. On their go: push, open the PR with `Closes #<n>` (body passed through the humanizer skill when installed), wait for CI to go green. Merge only when the user says so.
+Show the user: what changed, verify results, review results, what was left out. When Codex is ready, add one line: the dev can run `/codex:adversarial-review --base <default branch>` for a hands-on challenge of the direction. On their go: push, open the PR with `Closes #<n>` (body passed through the humanizer skill when installed), wait for CI to go green. Merge only when the user says so.
 
 ## 7. After merge
 

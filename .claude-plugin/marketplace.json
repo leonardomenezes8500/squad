@@ -5,12 +5,12 @@
     "name": "Leonardo Menezes",
     "url": "https://github.com/leonardomenezes8500"
   },
-  "description": "squad8500: work a GitHub issue with a team of Claude Code subagents.",
+  "description": "squad8500: work an issue with a team of Claude Code subagents.",
   "plugins": [
     {
       "name": "squad",
       "source": "./",
-      "description": "Take a GitHub issue to a reviewed PR with a team of subagents: research, plan, TDD, parallel adversarial review, two human gates.",
+      "description": "Take an issue (GitHub or markdown) to a reviewed PR with a team of subagents: research, plan, TDD, parallel adversarial review, two human gates.",
       "license": "MIT",
       "keywords": ["team", "subagents", "workflow", "issues", "review", "tdd"]
     }

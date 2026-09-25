@@ -32,6 +32,7 @@ const FINDINGS = {
         required: ["file", "severity", "title", "detail"],
       },
     },
+    error: { type: "string" },
   },
   required: ["findings"],
 };
@@ -43,7 +44,8 @@ const VERDICT = {
 };
 
 const base = args.base || "main";
-const scope = `Review the changes of \`git diff ${base}...HEAD\` for GitHub issue #${args.issue} (\`gh issue view ${args.issue}\`). Only report problems in the changed code. Use severity critical/high only for things that break behavior, leak data or break access control.`;
+const issue = args.tracker || `gh issue view ${args.issue}`;
+const scope = `Review the changes of \`git diff ${base}...HEAD\` for issue #${args.issue} (\`${issue}\`). Only report problems in the changed code. Use severity critical/high only for things that break behavior, leak data or break access control.`;
 
 const DIMENSIONS = [
   {
@@ -69,12 +71,27 @@ if (args.security) {
   });
 }
 
+// Codex: a model from another lab reviews through its plugin's own runtime and review
+// prompt; this agent only runs it and maps the output. Its claims still face the skeptic.
+if (args.codex) {
+  const mode = args.security ? "adversarial-review" : "review";
+  const focus = args.security
+    ? " challenge the auth, access control, secrets and input handling"
+    : "";
+  DIMENSIONS.push({
+    key: "codex",
+    prompt: `Run exactly: node "${args.codex}" ${mode} --wait --base ${base}${focus}
+
+It can take several minutes; use a long Bash timeout. Map every problem Codex reports in the changed code to a finding, keeping its file, line and wording. Don't review the code yourself. If the command fails, return no findings and set error to its most useful error lines.`,
+  });
+}
+
 phase("Review");
 // Barrier: dedup needs every dimension's findings together.
 const results = await parallel(
   DIMENSIONS.map(
     (d) => () =>
-      agent(`${scope}\n\nLens: ${d.lens}`, {
+      agent(d.prompt || `${scope}\n\nLens: ${d.lens}`, {
         label: `review:${d.key}`,
         phase: "Review",
         schema: FINDINGS,
@@ -82,7 +99,10 @@ const results = await parallel(
       }),
   ),
 );
-const failedDims = DIMENSIONS.filter((d, i) => !results[i]).map((d) => d.key);
+// A reviewer that died or couldn't run its tool leaves its dimension unreviewed.
+const failedDims = DIMENSIONS.flatMap((d, i) =>
+  !results[i] ? [d.key] : results[i].error ? [`${d.key} (${results[i].error})`] : [],
+);
 if (failedDims.length)
   log(
     `Reviewers that died (their dimension is unreviewed): ${failedDims.join(", ")}`,
