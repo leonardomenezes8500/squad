@@ -9,6 +9,7 @@ Claude Code plugin that makes Claude work like a team on GitHub issues. This rep
 - **The dev steers, the squad works.** One writer; research and review run in parallel and read-only; gates at the plan and the PR. Merging is always the dev's call: an auto-merge mode was written and Claude Code's auto-mode classifier blocked it as "merge without review". Don't bring it back.
 - **Git is the memory**, here and in every project squad works on. CLAUDE.md and auto memory hold rules and context that can't be read from the code, never history. Commit messages carry the why, which is why squad sets their format.
 - **Subagents don't load auto memory.** Anything the squad's agents must follow has to live in CLAUDE.md or `.claude/rules/`.
+- **Public repo, nothing private.** Files, commit messages, issues and PRs never name the maintainer's other projects, local paths, machine details or accounts beyond the public repo owner. Examples use made-up names.
 - **Generic.** Skills never assume a specific project. Talk to the user in their language; everything in this repo is English.
 
 ## Mechanics that bite
