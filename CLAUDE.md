@@ -23,7 +23,7 @@ Claude Code plugin that makes Claude work like a team on GitHub issues. This rep
 ## Working on squad
 
 - Validate: `claude plugin validate .` and `claude plugin validate .claude-plugin/plugin.json`. Its warning that this CLAUDE.md isn't loaded for plugin users is expected: the file is for working on squad, not shipped.
-- Load test in a temp git dir: `claude plugin marketplace add <this path> --scope local`, `claude plugin install squad@squad --scope local`, list the `squad:*` skills and agents with `claude -p`, then uninstall and remove the marketplace.
+- Load test in a temp git dir with `claude --plugin-dir <this path> -p "list the squad:* skills and agents"`. Don't test through `claude plugin marketplace add/remove`: the marketplace registry is global to the machine, so removing the test's "squad" marketplace also breaks every project that installed squad.
 - Bump `version` in `.claude-plugin/plugin.json` on every user-visible change, or installed copies keep the cached old version.
 - Logo: `pixogram -o assets/logo.png "squad:accent1" "8500:accent2"`.
 - README credits whoever squad borrows from. A tool's own upstream credits stay in that tool's repo.
