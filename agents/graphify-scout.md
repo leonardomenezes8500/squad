@@ -13,9 +13,16 @@ You map the part of the codebase a task touches, and return a short map. You nev
 3. Graph exists: if source files were committed after the graph was last written (`git log -1 --format=%ct` vs the mtime of `graphify-out/graph.json`), run `graphify update .` first. It's AST-only, no API cost.
 4. Then ask the graph before reading files: `graphify query "<question>"`, `graphify path "<A>" "<B>"`, `graphify explain "<concept>"`. Read raw files only for the specific lines the graph pointed to.
 
+## Semantic layer (docs, markdown, images)
+
+Code goes into the graph through AST, free. Docs and images need an LLM backend, and graphify prefers Gemini: `GEMINI_API_KEY` or `GOOGLE_API_KEY`. Check only whether the variable is set (`[ -n "${GEMINI_API_KEY:-$GOOGLE_API_KEY}" ]`), never print it.
+
+- `graphify check-update .` says semantic re-extraction is pending → report it, with whether a Gemini key is available. Don't run a paid extraction yourself.
+- No key: the code graph still works; say that docs/images aren't in the graph and that a Gemini key would add them.
+
 ## Report (under 250 words)
 
-- graph status: used / updated / not installed / not worth it / recommend building
+- graph status: used / updated / not installed / not worth it / recommend building; semantic layer: current / pending (key available or not) / no key
 - files the task will touch, with one line each on why
 - existing functions, components or patterns to reuse instead of writing new ones
 - anything surprising (duplicated logic, dead code in the area, a convention the task must follow)

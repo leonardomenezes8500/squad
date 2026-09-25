@@ -1,12 +1,24 @@
 ---
 name: team
-description: Take a GitHub issue from open to a reviewed PR with a team of subagents (research, plan, TDD implement, parallel adversarial review, verify) and two human gates. Use when the user says "/squad:team <n>", "/team <n>", "work issue <n>", "toca/pega a issue <n>", or asks the squad/team/agents to work an issue.
-argument-hint: <issue number>
+description: Work a project like a professional team of subagents - pick the next issue (or the one given), research, plan, TDD implement, parallel adversarial review, verify, open the PR - with the dev steering at the gates, or chaining issues in auto mode. Use when the user says "/squad:team", "/team", "work issue <n>", "toca/pega a issue <n>", "next issue", "continue the milestone", or asks the squad/team/agents to work.
+argument-hint: "[issue number | milestone | goal] [auto]"
 ---
 
 # team
 
-One issue in, one PR that closes it out. The main session is the only writer; subagents research and review in parallel, each with a small scoped prompt. Talk to the user in their language.
+The dev steers toward the goal; the squad does the work. Each issue ends in a PR that closes it; merging is always the dev's call. The main session is the only writer; subagents research and review in parallel, each with a small scoped prompt. Talk to the user in their language.
+
+## Target
+
+- **issue number** → that issue.
+- **milestone name** → the next unblocked issue in it.
+- **a goal in words** → the open issues that serve it; if none fit, draft the issue(s) (title, milestone, checklist) as part of the Gate 1 plan and create them on the go.
+- **nothing** → the next unblocked issue: earliest open milestone (due date first, then title order), lowest issue number whose dependencies are all closed. Say which one and why in one line.
+
+## Modes
+
+- **gated** (default): stop at Gate 1 and Gate 2.
+- **auto** (the user says "auto", "autonomous", "autônomo", "vai sozinho"): trivial/small issues skip Gate 1 (the plan is still posted on the issue). Once a PR is open with CI green, don't wait: move on to the next issue that doesn't depend on an unmerged PR. Standard/large plans still stop at Gate 1. Stop and report on any escalation, at the end of the milestone, or when everything left is waiting on a merge. After each PR, a two-line status: what's ready to merge, what's next.
 
 ## Conventions
 
@@ -64,4 +76,9 @@ Fix every blocking finding, then back to step 4. Max 3 review rounds; then escal
 
 ## 6. Gate 2 → PR
 
-Show the user: what changed, verify results, review results, what was left out. On their go: push, open the PR with `Closes #<n>`, wait for CI to go green. Merge only when the user says so. After merge, if the project has a graphify graph, run `graphify update .`.
+Show the user: what changed, verify results, review results, what was left out. On their go: push, open the PR with `Closes #<n>`, wait for CI to go green. Merge only when the user says so.
+
+## 7. After merge
+
+- If the project has a graphify graph, `graphify update .` (AST, free). If `graphify check-update .` then reports pending semantic work and a Gemini key is set (`GEMINI_API_KEY`/`GOOGLE_API_KEY`, never print it), run `graphify extract . --backend gemini`; without a key, mention once that docs/images are missing from the graph.
+- Run the `context` skill in its short form: anything this issue taught that a future session needs goes to the right memory layer.

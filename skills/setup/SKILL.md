@@ -26,6 +26,7 @@ graphify is a CLI + global skill, not a plugin, so it can't be enabled per proje
 
 - `command -v graphify` missing: tell the user it's optional and where it lives (github.com/Graphify-Labs/graphify, `uv tool install graphifyy`).
 - Installed and the repo has 150+ tracked source files without `graphify-out/`: suggest running `/graphify` once.
+- Gemini key: code goes into the graph via AST without any key, but docs, markdown and images need an LLM, and graphify prefers Gemini (`GEMINI_API_KEY` or `GOOGLE_API_KEY`). Check whether one is set without printing it. If not, recommend adding it to the shell environment (graphify reads the environment, not the project's `.env` files unless something like direnv exports them).
 - Don't add graphify hooks to project settings: a teammate without graphify would hit a hook error on every tool call. The `squad:graphify-scout` agent uses the graph when it's there.
 
 ## 3. Conventions in CLAUDE.md
