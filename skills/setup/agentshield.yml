@@ -1,0 +1,47 @@
+# ███ ███ █ █ ███ ██
+# █   █ █ █ █ █ █ █ █
+# ███ █ █ █ █ ███ █ █
+#   █ █   █ █ █ █ █ █
+# ███ ███ ███ █ █ ██   agentshield
+
+name: AgentShield
+
+on:
+  push:
+    branches: [main]
+    paths:
+      [
+        "CLAUDE.md",
+        ".claude/**",
+        ".github/agentshield-baseline.json",
+        ".github/workflows/agentshield.yml",
+      ]
+  pull_request:
+    branches: [main]
+    paths:
+      [
+        "CLAUDE.md",
+        ".claude/**",
+        ".github/agentshield-baseline.json",
+        ".github/workflows/agentshield.yml",
+      ]
+
+jobs:
+  scan:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      # Scan a copy with only agent config: the scanner has no ignore option and flags
+      # lockfile integrity hashes as Azure keys.
+      # Exit 2 = findings present but no regression vs baseline; 3 = regression.
+      - run: |
+          mkdir -p "$RUNNER_TEMP/agent-config"
+          cp -r CLAUDE.md .claude "$RUNNER_TEMP/agent-config/" 2>/dev/null || true
+          set +e
+          npx -y ecc-agentshield@1.6.0 scan --path "$RUNNER_TEMP/agent-config" \
+            --baseline .github/agentshield-baseline.json --gate
+          code=$?
+          [ "$code" -eq 0 ] || [ "$code" -eq 2 ]
